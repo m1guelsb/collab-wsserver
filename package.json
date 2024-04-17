@@ -5,14 +5,17 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "nodemon index.cjs",
+    "start": "node index.cjs"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "lib0": "^0.2.93",
-    "ws": "^8.16.0"
+    "lodash.debounce": "^4.0.8",
+    "ws": "^8.16.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.14"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
