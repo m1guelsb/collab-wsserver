@@ -2,7 +2,7 @@
   "name": "collab-wsserver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.cjs",
   "type": "module",
   "scripts": {
     "dev": "nodemon index.cjs",
