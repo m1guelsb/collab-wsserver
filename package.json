@@ -2,11 +2,11 @@
   "name": "collab-wsserver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.cjs",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.cjs",
-    "start": "node index.cjs"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
