@@ -1,7 +1,10 @@
-import Y from 'yjs';
-import syncProtocol from 'y-protocols/sync';
-import awarenessProtocol from 'y-protocols/awareness';
-import { createEncoder, createDecoder, writeVarUint, readVarUint, writeVarUint8Array, readVarUint8Array } from 'lib0/encoding';
+import * as Y from 'yjs';
+import * as syncProtocol from 'y-protocols/sync';
+import * as awarenessProtocol from 'y-protocols/awareness';
+
+import * as encoding from 'lib0/encoding';
+import * as decoding from 'lib0/decoding';
+
 import { map, setIfUndefined } from 'lib0/map';
 import debounce from 'lodash.debounce';
 import { callbackHandler, isCallbackSet } from './callback.js';
@@ -50,8 +53,8 @@ const messageSync = 0;
 const messageAwareness = 1;
 
 const updateHandler = (update, _origin, doc, _tr) => {
-  const encoder = createEncoder();
-  writeVarUint(encoder, messageSync);
+  const encoder = encoding.createEncoder();
+  encoding.writeVarUint(encoder, messageSync);
   syncProtocol.writeUpdate(encoder, update);
   const message = encoding.toUint8Array(encoder);
   doc.conns.forEach((_, conn) => send(doc, conn, message));
@@ -79,9 +82,9 @@ export class WSSharedDoc extends Y.Doc {
           removed.forEach(clientID => { connControlledIDs.delete(clientID); });
         }
       }
-      const encoder = createEncoder();
-      writeVarUint(encoder, messageAwareness);
-      writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients));
+      const encoder = encoding.createEncoder();
+      encoding.writeVarUint(encoder, messageAwareness);
+      encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients));
       const buff = encoding.toUint8Array(encoder);
       this.conns.forEach((_, c) => {
         send(this, c, buff);
@@ -112,12 +115,12 @@ export const getYDoc = (docname, gc = true) => setIfUndefined(docs, docname, () 
 
 const messageListener = (conn, doc, message) => {
   try {
-    const encoder = createEncoder();
-    const decoder = createDecoder(message);
-    const messageType = readVarUint(decoder);
+    const encoder = encoding.createEncoder();
+    const decoder = decoding.createDecoder(message);
+    const messageType = decoding.readVarUint(decoder);
     switch (messageType) {
       case messageSync:
-        writeVarUint(encoder, messageSync);
+        encoding.writeVarUint(encoder, messageSync);
         syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
 
         if (encoding.length(encoder) > 1) {
@@ -125,7 +128,7 @@ const messageListener = (conn, doc, message) => {
         }
         break;
       case messageAwareness: {
-        awarenessProtocol.applyAwarenessUpdate(doc.awareness, readVarUint8Array(decoder), conn);
+        awarenessProtocol.applyAwarenessUpdate(doc.awareness, decoding.readVarUint8Array(decoder), conn);
         break;
       }
     }
@@ -197,15 +200,15 @@ export const setupWSConnection = (conn, req, { docName = req.url.slice(1).split(
   });
 
   {
-    const encoder = createEncoder();
-    writeVarUint(encoder, messageSync);
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageSync);
     syncProtocol.writeSyncStep1(encoder, doc);
     send(doc, conn, encoding.toUint8Array(encoder));
     const awarenessStates = doc.awareness.getStates();
     if (awarenessStates.size > 0) {
-      const encoder = createEncoder();
-      writeVarUint(encoder, messageAwareness);
-      writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(doc.awareness, Array.from(awarenessStates.keys())));
+      const encoder = encoding.createEncoder();
+      encoding.writeVarUint(encoder, messageAwareness);
+      encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(doc.awareness, Array.from(awarenessStates.keys())));
       send(doc, conn, encoding.toUint8Array(encoder));
     }
   }

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import http from 'http';
 import { parseInt as parseInt } from 'lib0/number';
-import setupWSConnection from './utils.js';
+import { setupWSConnection } from './utils.js';
 
 const port = parseInt(process.env.PORT || '1234');
 
@@ -12,7 +12,7 @@ const server = http.createServer((_request, response) => {
   response.end('okay');
 });
 
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocketServer({ noServer: true });
 
 wss.on('connection', setupWSConnection);
 
